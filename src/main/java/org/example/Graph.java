@@ -53,7 +53,7 @@ public class Graph {
         queue.add(start);
 
         while (!queue.isEmpty()) {
-            int current = queue.poll(); // Dequeue the front node
+            int current = queue.remove(); // Dequeue the front node
 
             // If we reach the target node, reconstruct the path
             if (current == target) {
@@ -62,11 +62,16 @@ public class Graph {
 
             // Explore neighbors using the adjacency list
             for (Edge edge : adjacencyList[current]) {
+                System.out.println("current:"+ current);
+
+                System.out.println("edge:"+ edge.source);
                 int neighbor = edge.destination;
+                System.out.println("dest:"+ neighbor);
                 if (!visited[neighbor]) { // If the neighbor hasn't been visited
                     visited[neighbor] = true; // Mark it as visited
                     queue.add(neighbor); // Enqueue the neighbor
                     parentMap.put(neighbor, current); // Track the path
+                    System.out.println("map: "+parentMap.toString());
                 }
             }
         }
@@ -77,8 +82,8 @@ public class Graph {
     // Reconstruct the path from start to target
     private List<Integer> reconstructPath(Map<Integer, Integer> parentMap, int start, int target) {
         LinkedList<Integer> path = new LinkedList<>();
-        for (Integer at = target; at != null; at = parentMap.get(at)) {
-            path.addFirst(at); // Add to the front to reverse the order
+        for (Integer i = target; i != null; i = parentMap.get(i)) {
+            path.addFirst(i); // Add to the front to reverse the order
         }
         return path;
     }
