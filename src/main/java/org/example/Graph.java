@@ -62,16 +62,16 @@ public class Graph {
 
             // Explore neighbors using the adjacency list
             for (Edge edge : adjacencyList[current]) {
-                System.out.println("current:"+ current);
+                System.out.println("current:" + current);
 
-                System.out.println("edge:"+ edge.source);
+                System.out.println("edge:" + edge.source);
                 int neighbor = edge.destination;
-                System.out.println("dest:"+ neighbor);
+                System.out.println("dest:" + neighbor);
                 if (!visited[neighbor]) { // If the neighbor hasn't been visited
                     visited[neighbor] = true; // Mark it as visited
                     queue.add(neighbor); // Enqueue the neighbor
                     parentMap.put(neighbor, current); // Track the path
-                    System.out.println("map: "+parentMap.toString());
+                    System.out.println("map: " + parentMap.toString());
                 }
             }
         }
@@ -79,7 +79,6 @@ public class Graph {
         return null; // No path found
     }
 
-    // Reconstruct the path from start to target
     private List<Integer> reconstructPath(Map<Integer, Integer> parentMap, int start, int target) {
         LinkedList<Integer> path = new LinkedList<>();
         for (Integer i = target; i != null; i = parentMap.get(i)) {
@@ -87,6 +86,39 @@ public class Graph {
         }
         return path;
     }
+
+    public int shortestTotalDistance(int start, int target) {
+        boolean visited[] = new boolean[vertices];
+        int path[] = new int[vertices]; //predecessor
+        int distance[] = new int[vertices];
+        PriorityQueue<Integer> queue = new PriorityQueue<>(Comparator.comparingInt(node -> distance[node]));
+
+        Arrays.fill(distance, Integer.MAX_VALUE); //set to infinity
+
+        distance[start] = 0;
+        queue.add(start);
+        while (!queue.isEmpty()) {
+
+            int current = queue.remove(); //v
+            visited[current] = true;
+            if (current == target) {
+                return distance[target];
+            }
+
+            for (Edge edge : adjacencyList[current]) {
+                if (!visited[edge.destination] && edge.weight + distance[current] < distance[edge.destination]) {
+                    distance[edge.destination] = distance[current] + edge.weight;
+                    path[edge.destination] = current;
+                    queue.add(edge.destination);
+
+                }
+            }
+
+        }
+        return -1;
+
+    }
+
 
     public static void main(String[] args) {
         Graph graph = new Graph(7); // 7 vertices, 0 to 6
@@ -101,14 +133,16 @@ public class Graph {
         graph.addEdge(4, 6, 6);
         graph.addEdge(2, 6, 1);
 
-        List<Edge>[] vertices = graph.getVertices();
-        for (int i = 1; i < vertices.length; i++) {
-            System.out.print("Vertex " + i +" : ");
-            for (Edge edge : vertices[i]) {
-                System.out.print(edge.destination + " ");
-            }
-            System.out.println();
-        }
+        //adj. List print
+//        List<Edge>[] vertices = graph.getVertices();
+//        for (int i = 1; i < vertices.length; i++) {
+//            System.out.print("Vertex " + i + " : ");
+//            for (Edge edge : vertices[i]) {
+//                System.out.print(edge.destination + " ");
+//            }
+//            System.out.println();
+//        }
+
         int start = 1;
         int target = 6;
         List<Integer> path = graph.bfs(start, target);
@@ -121,6 +155,10 @@ public class Graph {
         } else {
             System.out.println("No path found from " + start + " to " + target + ".");
         }
+        System.out.println("-------------------------------");
+
+        int q2 = graph.shortestTotalDistance(start, target);
+        System.out.println("Shortest path from "+ start+" to "+ target +" : " + q2);
     }
-    }
+}
 
