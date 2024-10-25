@@ -118,7 +118,13 @@ public class Graph {
         return -1;
 
     }
+ public int aStar(int start, int target){
+        boolean visited[]= new boolean[vertices];
+        int path[] = new int[vertices];
+        int f[]= new int[vertices];
+        int distance[]= new int [vertices];
 
+ }
 
     public static void main(String[] args) {
         Graph graph = new Graph(7); // 7 vertices, 0 to 6
