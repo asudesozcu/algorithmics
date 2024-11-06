@@ -1,5 +1,9 @@
 package org.example;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -19,6 +23,7 @@ class Edge {
 
 public class Graph {
 
+    private static int i;
     int vertices; //number of cities
     List<Edge>[] adjacencyList;
     double[] latitudes;
@@ -26,21 +31,26 @@ public class Graph {
 
     public Graph(int vertices) {
         this.vertices = vertices;
-        adjacencyList = new ArrayList[vertices]; //left part of adjacenylist
+        adjacencyList = new ArrayList[vertices]; // adjacency list
         latitudes = new double[vertices];
         longitudes = new double[vertices];
 
         for (int i = 0; i < vertices; i++) {
-            adjacencyList[i] = new ArrayList<>(); //right part of adjList. just created
+            adjacencyList[i] = new ArrayList<>(); // initialize adjacency list
         }
     }
 
     public void addEdge(int source, int destination, int weight) {
+        // Adjust for 1-based indexing by subtracting 1 from the vertex indices
+        source--;
+        destination--;
+
         Edge sourceToDestinationEdge = new Edge(source, destination, weight);
         Edge destinationToSourceEdge = new Edge(destination, source, weight);
 
+
         adjacencyList[source].add(sourceToDestinationEdge);
-        adjacencyList[destination].add(destinationToSourceEdge); //since its not directional graph
+        adjacencyList[destination].add(destinationToSourceEdge); // For undirected graph
     }
 
 
@@ -67,16 +77,12 @@ public class Graph {
 
             // Explore neighbors using the adjacency list
             for (Edge edge : adjacencyList[current]) {
-                System.out.println("current:" + current);
 
-                System.out.println("edge:" + edge.source);
                 int neighbor = edge.destination;
-                System.out.println("dest:" + neighbor);
                 if (!visited[neighbor]) { // If the neighbor hasn't been visited
                     visited[neighbor] = true; // Mark it as visited
                     queue.add(neighbor); // Enqueue the neighbor
                     parentMap.put(neighbor, current); // Track the path
-                    System.out.println("map: " + parentMap.toString());
                 }
             }
         }
@@ -114,7 +120,7 @@ public class Graph {
                 System.out.println("Path: " );
 
                 for(Integer i : shortestPath) {
-                    System.out.print(i+1+" ");
+                    System.out.print((i+1)+" ");
                 }
                 System.out.println(" ");
                 return distance[target];
@@ -225,63 +231,89 @@ public class Graph {
 
 
     public static void main(String[] args) {
-        Graph graph = new Graph(6); // 7 vertices, 0 to 6
-        // Total 9 edges between vertices
-        graph.addEdge(0, 3, 4);
-        graph.addEdge(0, 4, 2);
-        graph.addEdge(1, 3, 4);
-        graph.addEdge(2, 1, 2);
-        graph.addEdge(1, 5, 1);
-        graph.addEdge(2, 3, 1);
-        graph.addEdge(2, 4, 4);
-        graph.addEdge(3, 4, 1);
-        graph.addEdge(3, 5, 6);
+//        Graph graph = new Graph(6); // 7 vertices, 0 to 6
+//        // Total 9 edges between vertices
+ //      graph.addEdge(0, 3, 4);
+//        graph.addEdge(0, 4, 2);
+//        graph.addEdge(1, 3, 4);
+//        graph.addEdge(2, 1, 2);
+//        graph.addEdge(1, 5, 1);
+//        graph.addEdge(2, 3, 1);
+//        graph.addEdge(2, 4, 4);
+//        graph.addEdge(3, 4, 1);
+//        graph.addEdge(3, 5, 6);
+//
+//        graph.setCoordinates(0, 55, 16); // City 1
+//        graph.setCoordinates(1, 54.30, 18.20); // City 2
+//        graph.setCoordinates(2, 53.70, 17); // City 3
+//        graph.setCoordinates(3, 54.5, 18); // City 4
+//        graph.setCoordinates(4, 53, 15.50); // City 5
+//        graph.setCoordinates(5, 53.50, 19.3);
+//        //adj. List print
+////        List<Edge>[] vertices = graph.getVertices();
+////        for (int i = 1; i < vertices.length; i++) {
+////            System.out.print("Vertex " + i + " : ");
+////            for (Edge edge : vertices[i]) {
+////                System.out.print(edge.destination + " ");
+////            }
+////            System.out.println();
+////        }
+//
+//
 
-        graph.setCoordinates(0, 55, 16); // City 1
-        graph.setCoordinates(1, 54.30, 18.20); // City 2
-        graph.setCoordinates(2, 53.70, 17); // City 3
-        graph.setCoordinates(3, 54.5, 18); // City 4
-        graph.setCoordinates(4, 53, 15.50); // City 5
-        graph.setCoordinates(5, 53.50, 19.3);
-        //adj. List print
-//        List<Edge>[] vertices = graph.getVertices();
-//        for (int i = 1; i < vertices.length; i++) {
-//            System.out.print("Vertex " + i + " : ");
-//            for (Edge edge : vertices[i]) {
-//                System.out.print(edge.destination + " ");
-//            }
-//            System.out.println();
-//        }
 
-        int start = 0;
-        int target = 5;
-        List<Integer> bfsPath = graph.bfs(start, target);
-        System.out.println(bfsPath.size() - 2); // Excluding start and target
+            BufferedReader reader;
+            String filePath = "C:\\Users\\sozcu\\Downloads\\tests (1)\\in100000.txt"; // your file path
 
-        if (bfsPath != null) {
-            System.out.print("Path from " + (start + 1) + " to " + (target + 1) + ": ");
-            for (Integer vertex : bfsPath) {
-                System.out.print((vertex + 1) + " ");
+            try {
+                reader = new BufferedReader(new FileReader(filePath));
+                String line = reader.readLine();
+                Integer vertices = Integer.parseInt(line.split(" ")[0]);
+                Integer edges = Integer.parseInt(line.split(" ")[1]);
+
+                Graph graph = new Graph(vertices);
+
+                // Read coordinates
+                for (int i = 0; i < vertices; i++) {
+                    line = reader.readLine();
+                    graph.setCoordinates(i, Double.parseDouble(line.split(" ")[0]), Double.parseDouble(line.split(" ")[1]));
+                }
+
+                // Read and add edges
+                for (int i = 0; i < edges; i++) {
+                    line = reader.readLine();
+                    graph.addEdge(Integer.parseInt(line.split(" ")[0]), Integer.parseInt(line.split(" ")[1]), Integer.parseInt(line.split(" ")[2]));
+                }
+
+                // Read the path request
+                line = reader.readLine();
+                int start = Integer.parseInt(line.split(" ")[0]);
+                int target = Integer.parseInt(line.split(" ")[1]);
+
+                // Perform BFS
+                List<Integer> bfsPath = graph.bfs(start - 1, target - 1); // Adjust indices for 0-based indexing
+                System.out.println(bfsPath.size() - 2); // Excluding start and target
+
+                if (bfsPath != null) {
+                    System.out.print("Path from " + start + " to " + target + ": ");
+                    for (Integer vertex : bfsPath) {
+                        System.out.print((vertex + 1) + " "); // Adjust back to 1-based indexing for output
+                    }
+                    System.out.println();
+                } else {
+                    System.out.println("No path found from " + start + " to " + target + ".");
+                }
+
+                // Shortest path distance
+               graph.shortestTotalDistance(start - 1, target - 1); // Adjust indices for 0-based indexing
+
+
+                // A* algorithm
+           //     graph.aStar(start - 1, target - 1); // Adjust indices for 0-based indexing
+
+                reader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            System.out.println();
-        } else {
-            System.out.println("No path found from " + (start + 1) + " to " + (target + 1) + ".");
         }
-
-        // Shortest path distance
-        int shortestDistance = graph.shortestTotalDistance(start, target);
-        if (shortestDistance != -1) {
-            System.out.println("Shortest path weight from " + start + " to " + target + ": " + shortestDistance);
-
-        } else {
-            System.out.println("No path found from " + start + " to " + target + ".");
-        }
-
-        System.out.println("-------------------------------");
-
-        // A* algorithm
-        graph.aStar(start, target);
-
-
     }
-}
