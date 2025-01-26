@@ -103,17 +103,38 @@ public class ExactRoutePlanner {
         return new Solution(totalDistance, routes);
     }
 
-            }
-        } while (nextPermutation(candidates));
+    // 2-opt Heuristic
+    private static Solution twoOpt(int n, int m, int k, double[][] coords, double[] depot) {
+        double[][] distMatrix = createDistanceMatrix(coords, depot);
+        List<Integer> route = new ArrayList<>();
+        for (int i = 0; i <= n; i++) route.add(i); // Initial route (0 -> 1 -> 2 -> ... -> n -> 0)
 
-        return bestRoute;
+        boolean improvement = true;
+        while (improvement) {
+            improvement = false;
+            for (int i = 1; i < route.size() - 2; i++) {
+                for (int j = i + 1; j < route.size() - 1; j++) {
+                    double delta = -distMatrix[route.get(i - 1)][route.get(i)]
+                            - distMatrix[route.get(j)][route.get(j + 1)]
+                            + distMatrix[route.get(i - 1)][route.get(j)]
+                            + distMatrix[route.get(i)][route.get(j + 1)];
+
+                    if (delta < 0) {
+                        Collections.reverse(route.subList(i, j + 1));
+                        improvement = true;
+                    }
+                }
+            }
+        }
+
+        double totalDistance = 0;
+        for (int i = 0; i < route.size() - 1; i++) {
+            totalDistance += distMatrix[route.get(i)][route.get(i + 1)];
+        }
+
+        return Solution.singleRouteSolution(totalDistance, route);
     }
 
-    private static double calculateTotalDistance(List<Client> route, Client depot) {
-        double totalDistance = 0.0;
-        totalDistance += depot.distanceTo(route.get(0));
-        for (int i = 0; i < route.size() - 1; i++) {
-            totalDistance += route.get(i).distanceTo(route.get(i + 1));
         }
         totalDistance += route.get(route.size() - 1).distanceTo(depot);
         return totalDistance;
