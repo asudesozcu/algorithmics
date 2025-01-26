@@ -135,9 +135,29 @@ public class ExactRoutePlanner {
         return Solution.singleRouteSolution(totalDistance, route);
     }
 
+    private static void validateRoutes(List<List<Integer>> routes, int totalCities) {
+        Set<Integer> visitedCities = new HashSet<>();
+        Set<Integer> duplicates = new HashSet<>();
+        for (List<Integer> route : routes) {
+            for (int city : route) {
+                if (city == 0) continue; // Depoyu atla
+                if (!visitedCities.add(city)) {
+                    duplicates.add(city);
+                }
+            }
         }
-        totalDistance += route.get(route.size() - 1).distanceTo(depot);
-        return totalDistance;
+
+        // Kontrol sonuçları
+        System.out.println("Total Cities (Expected): " + totalCities);
+        System.out.println("Visited Cities (Unique): " + visitedCities.size());
+        System.out.println("Duplicates: " + duplicates);
+        System.out.println("Missing Cities: ");
+        for (int i = 1; i <= totalCities; i++) {
+            if (!visitedCities.contains(i)) {
+                System.out.print(i + " ");
+            }
+        }
+        System.out.println();
     }
 
     // Create distance matrix
