@@ -140,27 +140,100 @@ public class ExactRoutePlanner {
         return totalDistance;
     }
 
-    private static boolean nextPermutation(List<Client> route) {
-        int k = -1;
-        for (int i = 0; i < route.size() - 1; i++) {
-            if (route.get(i).id < route.get(i + 1).id) {
-                k = i;
+    // Create distance matrix
+    private static double[][] createDistanceMatrix(double[][] coords, double[] depot) {
+        int n = coords.length;
+        double[][] distMatrix = new double[n + 1][n + 1];
+
+        for (int i = 0; i <= n; i++) {
+            for (int j = 0; j <= n; j++) {
+                if (i == 0 && j == 0) {
+                    distMatrix[i][j] = 0; // Depot to depot
+                } else if (i == 0) {
+                    distMatrix[i][j] = calculateDistance(depot, coords[j - 1]); // Depot to client
+                } else if (j == 0) {
+                    distMatrix[i][j] = calculateDistance(coords[i - 1], depot); // Client to depot
+                } else {
+                    distMatrix[i][j] = calculateDistance(coords[i - 1], coords[j - 1]); // Client to client
+                }
             }
         }
-        if (k == -1) return false;
 
-        int l = -1;
-        for (int i = k + 1; i < route.size(); i++) {
-            if (route.get(k).id < route.get(i).id) {
-                l = i;
+        return distMatrix;
+    }
+
+    public static void main(String[] args) {
+        try {
+            // Change file path for testing
+          //  String filePath = "C:\\Users\\sozcu\\Downloads\\test_2cars.txt";
+
+            String filePath = "C:\\Users\\sozcu\\Downloads\\test_1car.txt";
+            InputData inputData = parseInput(filePath);
+
+            System.out.println("Exact Solution:");
+            if (inputData.m == 1) {
+                Solution solution = exactSolution(inputData.n, inputData.clientCoords, inputData.depotCoords);
+                System.out.println("Total Distance: " + solution.totalDistance);
+                System.out.println("Route: " + solution.routes.get(0));
             }
+
+            System.out.println("\nNearest Neighbor Heuristic:");
+            Solution heuristicSolution = nearestNeighbor(inputData.n, inputData.m, inputData.k, inputData.clientCoords, inputData.depotCoords);
+            System.out.println("Total Distance: " + heuristicSolution.totalDistance);
+            for (List<Integer> route : heuristicSolution.routes) {
+                System.out.println("Route: " + route);
+            }
+
+
+
+            System.out.println("\n2-Opt Heuristic:");
+            Solution twoOptSolution = twoOpt(inputData.n, inputData.m, inputData.k, inputData.clientCoords, inputData.depotCoords);
+            System.out.println("Total Distance: " + twoOptSolution.totalDistance);
+            System.out.println("Route: " + twoOptSolution.routes.get(0));
+
+
+            System.out.println("\nValidating Nearest Neighbor Heuristic Routes:");
+            validateRoutes(heuristicSolution.routes, 400);
+
+            System.out.println("\nValidating 2-Opt Heuristic Routes:");
+            validateRoutes(twoOptSolution.routes, 400);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Input data structure
+    static class InputData {
+        int n, m, k;
+        double[][] clientCoords;
+        double[] depotCoords;
+
+        public InputData(int n, int m, int k, double[][] clientCoords, double[] depotCoords) {
+            this.n = n;
+            this.m = m;
+            this.k = k;
+            this.clientCoords = clientCoords;
+            this.depotCoords = depotCoords;
+        }
+        // Input data structure
+
+    }
+    // Solution structure
+    static class Solution {
+        double totalDistance;
+        List<List<Integer>> routes;
+
+        public Solution(double totalDistance, List<List<Integer>> routes) {
+            this.totalDistance = totalDistance;
+            this.routes = routes;
         }
 
-        Collections.swap(route, k, l);
-
-        List<Client> sublist = route.subList(k + 1, route.size());
-        Collections.reverse(sublist);
-
-        return true;
+        public static Solution singleRouteSolution(double totalDistance, List<Integer> route) {
+            List<List<Integer>> routes = new ArrayList<>();
+            routes.add(route);
+            return new Solution(totalDistance, routes);
+        }
     }
 }
+
