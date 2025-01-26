@@ -62,35 +62,47 @@ public class ExactRoutePlanner {
         return Solution.singleRouteSolution(totalDistance, visited);
     }
     
+    // Nearest Neighbor Heuristic for multiple vehicles
+    private static Solution nearestNeighbor(int n, int m, int k, double[][] coords, double[] depot) {
+        double[][] distMatrix = createDistanceMatrix(coords, depot);
+        Set<Integer> unvisited = new HashSet<>();
+        for (int i = 1; i <= n; i++) unvisited.add(i);
 
-        if (m == 1) {
-            // Single vehicle solution
-            List<Client> optimalRoute = findOptimalRoute(clients, depot);
-            double totalDistance = calculateTotalDistance(optimalRoute, depot);
+        List<List<Integer>> routes = new ArrayList<>();
+        double totalDistance = 0;
 
-            System.out.printf("Optimal total distance: %.6f\n", totalDistance);
-            System.out.print("Optimal route: 0 ");
-            for (Client client : optimalRoute) {
-                System.out.print(client.id + " ");
+        for (int vehicle = 0; vehicle < m; vehicle++) {
+            List<Integer> route = new ArrayList<>();
+            route.add(0); // Start at depot
+
+            while (route.size() <= k && !unvisited.isEmpty()) {
+                int last = route.get(route.size() - 1);
+                double minDistance = Double.MAX_VALUE;
+                int nextClient = -1;
+
+                for (int client : unvisited) {
+                    if (distMatrix[last][client] < minDistance) {
+                        minDistance = distMatrix[last][client];
+                        nextClient = client;
+                    }
+                }
+
+                if (nextClient != -1) {
+                    route.add(nextClient);
+                    unvisited.remove(nextClient);
+                }
             }
-            System.out.println("0");
-        } else {
-            // Multi-vehicle logic can be added here
-            System.out.println("Multi-vehicle solutions are not implemented in this exact algorithm.");
+
+            route.add(0); // Return to depot
+            routes.add(route);
+            for (int i = 0; i < route.size() - 1; i++) {
+                totalDistance += distMatrix[route.get(i)][route.get(i + 1)];
+            }
         }
+
+        return new Solution(totalDistance, routes);
     }
 
-    public static List<Client> findOptimalRoute(List<Client> clients, Client depot) {
-        List<Client> bestRoute = null;
-        double minDistance = Double.MAX_VALUE;
-
-        // Generate all permutations of clients
-        List<Client> candidates = new ArrayList<>(clients);
-        do {
-            double currentDistance = calculateTotalDistance(candidates, depot);
-            if (currentDistance < minDistance) {
-                minDistance = currentDistance;
-                bestRoute = new ArrayList<>(candidates);
             }
         } while (nextPermutation(candidates));
 
