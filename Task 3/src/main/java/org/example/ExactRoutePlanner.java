@@ -1,30 +1,36 @@
 package org.example;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.*;
 
 public class ExactRoutePlanner {
+    // Helper method to calculate Euclidean distance
+    private static double calculateDistance(double[] p1, double[] p2) {
+        return Math.sqrt(Math.pow(p1[0] - p2[0], 2) + Math.pow(p1[1] - p2[1], 2));
+    }
 
-    static class Client {
-        int id;
-        double x, y;
+    // Parse input file
+    private static InputData parseInput(String filePath) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(filePath));
+        String[] firstLine = reader.readLine().trim().split(" ");
+        int n = Integer.parseInt(firstLine[0]);
+        int m = Integer.parseInt(firstLine[1]);
+        int k = Integer.parseInt(firstLine[2]);
 
-        public Client(int id, double x, double y) {
-            this.id = id;
-            this.x = x;
-            this.y = y;
+        double[][] clientCoords = new double[n][2];
+        for (int i = 0; i < n; i++) {
+            String[] line = reader.readLine().trim().split(" ");
+            clientCoords[i][0] = Double.parseDouble(line[0]);
+            clientCoords[i][1] = Double.parseDouble(line[1]);
         }
 
-        public double distanceTo(Client other) {
-            return Math.sqrt(Math.pow(this.x - other.x, 2) + Math.pow(this.y - other.y, 2));
-        }
+        String[] depotLine = reader.readLine().trim().split(" ");
+        double[] depotCoords = {Double.parseDouble(depotLine[0]), Double.parseDouble(depotLine[1])};
 
-        @Override
-        public String toString() {
-            return String.valueOf(id);
-        }
+        reader.close();
+        return new InputData(n, m, k, clientCoords, depotCoords);
     }
 
     public static void main(String[] args) {
