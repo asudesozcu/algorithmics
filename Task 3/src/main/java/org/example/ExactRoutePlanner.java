@@ -33,27 +33,35 @@ public class ExactRoutePlanner {
         return new InputData(n, m, k, clientCoords, depotCoords);
     }
 
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+    // Exact solution for m = 1
+    private static Solution exactSolution(int n, double[][] coords, double[] depot) {
+        double[][] distMatrix = createDistanceMatrix(coords, depot);
+        List<Integer> visited = new ArrayList<>();
+        visited.add(0); // Start at depot
+        double totalDistance = 0;
 
-        // Read input values
-        System.out.print("Enter n (clients), m (vehicles), k (max clients per vehicle): ");
-        int n = scanner.nextInt();
-        int m = scanner.nextInt();
-        int k = scanner.nextInt();
+        while (visited.size() < n + 1) {
+            int last = visited.get(visited.size() - 1);
+            double minDistance = Double.MAX_VALUE;
+            int nextClient = -1;
 
-        List<Client> clients = new ArrayList<>();
-        System.out.println("Enter client coordinates (x, y):");
-        for (int i = 1; i <= n; i++) {
-            double x = scanner.nextDouble();
-            double y = scanner.nextDouble();
-            clients.add(new Client(i, x, y));
+            for (int i = 1; i <= n; i++) {
+                if (!visited.contains(i) && distMatrix[last][i] < minDistance) {
+                    minDistance = distMatrix[last][i];
+                    nextClient = i;
+                }
+            }
+
+            visited.add(nextClient);
+            totalDistance += minDistance;
         }
 
-        System.out.print("Enter depot coordinates (x, y): ");
-        double depotX = scanner.nextDouble();
-        double depotY = scanner.nextDouble();
-        Client depot = new Client(0, depotX, depotY);
+        totalDistance += distMatrix[visited.get(visited.size() - 1)][0]; // Return to depot
+        visited.add(0);
+
+        return Solution.singleRouteSolution(totalDistance, visited);
+    }
+    
 
         if (m == 1) {
             // Single vehicle solution
