@@ -61,7 +61,7 @@ public class ExactRoutePlanner {
 
         return Solution.singleRouteSolution(totalDistance, visited);
     }
-    
+
     // Nearest Neighbor Heuristic for multiple vehicles
     private static Solution nearestNeighbor(int n, int m, int k, double[][] coords, double[] depot) {
         double[][] distMatrix = createDistanceMatrix(coords, depot);
@@ -185,7 +185,7 @@ public class ExactRoutePlanner {
     public static void main(String[] args) {
         try {
             // Change file path for testing
-          //  String filePath = "C:\\Users\\sozcu\\Downloads\\test_2cars.txt";
+          // String filePath = "C:\\Users\\sozcu\\Downloads\\test_2cars.txt";
 
             String filePath = "C:\\Users\\sozcu\\Downloads\\test_1car.txt";
             InputData inputData = parseInput(filePath);
